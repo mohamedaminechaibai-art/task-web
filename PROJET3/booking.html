@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book a Room – LuxStay</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header><nav>...navigation...</nav></header>
+      <nav>
+      <a href="index.html" class="logo">LuxStay</a>
+      <ul>
+        <li><a href="rooms.html">Rooms</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="reviews.html">Reviews</a></li>
+        <li><a href="booking.html">Book Now</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+ 
+    <main>
+    <h2>Make a Reservation</h2>
+    <form action="#" method="post">
+      <label for="name">Full Name:</label><input id="name" type="text" placeholder="Your name" required>
+      <label for="email">Email:</label><input id="email" type="email" placeholder="you@example.com" required>
+      <label for="room">Room Type:</label>
+      <select id="room" required>
+        <option value="">--Select Room--</option>
+        <option>Deluxe Suite</option><option>Standard Room</option>
+      </select>
+      <label for="checkin">Check‑in:</label><input id="checkin" type="date" required>
+      <label for="checkout">Check‑out:</label><input id="checkout" type="date" required>
+      <label for="requests">Special Requests:</label><textarea id="requests" rows="4"></textarea>
+      <button type="submit" class="btn-primary">Book Now</button>
+    </form>
+  </main>
+  <footer>...footer...</footer>
+</body>
+</html>

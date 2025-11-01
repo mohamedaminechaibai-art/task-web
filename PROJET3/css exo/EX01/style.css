@@ -1,0 +1,73 @@
+/* Global Styles */
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: arial, sans-serif;
+}
+body{
+   background-color: aquamarine ;
+  color: #333;
+  padding: 2rem;
+  text-align: center;
+}
+
+/*header styles*/
+.promo-header{
+  margin-bottom: 2rem;
+  }
+  .promo-header h1{
+      font-size: 2rem;
+      color: black;
+  }
+/* Promo Cards Section */
+.promo-cards{
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+
+/* Individual Card */
+.card{
+  background-color: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 100 10 2500000px rgba(236, 18, 18, 0.9);
+  display: flex;
+  flex: 1 1 250px;
+  min-width: 250px;
+  max-width: 300px;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.card-h2{
+  color: brown;
+  margin-bottom: 0.5rem;
+}
+.card-p{
+  font-size: 1rem;
+  color: crimson;
+}
+
+/* Footer Section */
+.promo-footer {
+  margin-top: 1rem;
+}
+
+.promo-footer button {
+  background-color: #1d3557;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.promo-footer button:hover {
+  background-color: #457b9d;
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guest Filtering System</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+   <header>
+    <h1>Hotel Guest Search & Filter </h1>
+   </header>
+    <section>
+      <h2>Add Guest</h2>
+      <input type="text" id="guest-name" placeholder="Guest Name">
+      <input type="number"  id="room-number" placeholder="Room Number">
+        <select  id="room-type" placeholder="room-type">
+          <option value="single">Single</option>
+          <option value="double">Double</option>
+          <option value="suite">Suite</option> 
+        </select> <br>
+        <input type="number" id="number-of-guest" placeholder="Number of Guest">
+        <input type="date" placeholder="date time"> <br>
+        <input type="number" id="number-of-nights" placeholder="Number of Nights">
+        <select  id=" cheke">
+          <option value="cheked in">Cheked in</option>
+          <option value="not-cheked">Not Cheked</option>
+        </select>
+    </section>
+      <section>
+        <h2>Search and Filter Guests</h2>
+        <input type="text" id="search-name" placeholder="Search by Name" oninput="searchByName()" />
+        <button onclick="filterCheckedIn()">Checked-In Guests</button>
+        <input type="number" id="min-nights" placeholder="Min Nights" />
+        <button onclick="filterLongStays()">Filter Long Stays</button>
+        <select id="filter-room-type">
+          <option value="">Select Room Type</option>
+          <option value="single">Single</option>
+          <option value="double">Double</option>
+          <option value="suite">Suite</option>
+        </select>
+        <button onclick="filterByRoomType()">Filter by Room Type</button>
+        <input type="number" id="min-group-size" placeholder="Min People in Room" />
+        <button onclick="filterByGroupSize()">Filter by Group Size</button>
+       </section>
+
+    <!-- Results -->
+    <section>
+      <h2>Results</h2>
+      <div id="results"></div>
+    </section>
+      </section>
+</body>
+</html>

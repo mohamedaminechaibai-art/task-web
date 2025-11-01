@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hotel Restaurant Orders</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Hotel Restaurant Orders Management</h1>
+  </header>
+
+  <main>
+    <!-- Register a New Guest -->
+    <section class="guest-section">
+      <h2>Register Guest</h2>
+      <input type="text" id="guest-name" placeholder="Guest Name" />
+      <input type="text" id="room-number" placeholder="Room Number" />
+      <button onclick="registerGuest()">Register</button>
+    </section>
+
+    <!-- Place an Order -->
+    <section class="order-section">
+      <h2>Place an Order</h2>
+      <select id="guest-select"></select>
+      <input type="text" id="item-name" placeholder="Item Name" />
+      <input type="number" id="item-price" placeholder="Item Price" />
+      <button onclick="addItem()">Add Item</button>
+      <button onclick="placeOrder()">Submit Order</button>
+      <ul id="order-items"></ul>
+    </section>
+
+    <!-- Display Orders -->
+    <section class="display-section">
+      <h2>Guest Orders</h2>
+      <select id="guest-order-select" onchange="displayOrders()"></select>
+      <div id="orders-output"></div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

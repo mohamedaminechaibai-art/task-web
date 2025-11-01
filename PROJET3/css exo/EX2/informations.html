@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hotel Welcome — Dinner Order</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --accent:#1565c0;
+      --muted:#6b7280;
+      --success:#0f9d58;
+      --danger:#d32f2f;
+      --radius:12px;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    body{
+      margin:0;
+      background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      color:#111827;
+    }
+
+    .container{
+      width:100%;
+      max-width:980px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow: 0 10px 30px rgba(17,24,39,0.08);
+      padding:26px;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:20px;
+    }
+
+    header h1{
+      margin:0 0 6px 0;
+      font-size:20px;
+    }
+    header p{ margin:0; color:var(--muted); font-size:14px; }
+
+    .guest-form, .menu {
+      background: linear-gradient(180deg,#fff, #fbfdff);
+      border-radius:10px;
+      padding:18px;
+      border:1px solid rgba(16,24,40,0.03);
+    }
+
+    label{ display:block; font-size:13px; margin-bottom:6px; color:#111827; }
+    input[type="text"], input[type="number"], select {
+      width:100%;
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid #e6eef8;
+      font-size:15px;
+      box-sizing:border-box;
+      margin-bottom:12px;
+    }
+
+    .flex-row{ display:flex; gap:10px; align-items:center; }
+    .small { font-size:13px; color:var(--muted); }
+
+    .menu-list{ display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+    .menu-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid rgba(16,24,40,0.03);
+      background:linear-gradient(180deg,#fff,#fbfdff);
+    }
+    .menu-left{ display:flex; gap:12px; align-items:center; }
+    .dish-name{ font-weight:600; font-size:15px; }
+    .dish-desc{ font-size:13px; color:var(--muted); }
+    .dish-price{ font-weight:700; min-width:80px; text-align:right; }
+
+    input.qty{ width:66px; padding:8px; text-align:center; border-radius:8px; border:1px solid #e6eef8; }
+
+    .actions{
+      display:flex; gap:10px; margin-top:14px;
+    }
+    button{
+      background:var(--accent);
+      color:white;
+      border:none;
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:600;
+      cursor:pointer;
+    }
+    button.secondary{
+      background:transparent;
+      color:var(--accent);
+      border:1px solid rgba(21,101,192,0.12);
+    }
+
+    .summary{
+      padding:18px;
+      border-radius:10px;
+      background:linear-gradient(180deg,#fff,#fbfdff);
+      border:1px solid rgba(16,24,40,0.03);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .summary-row{ display:flex; justify-content:space-between; align-items:center; }
+    .total{ font-size:20px; font-weight:800; }
+
+    .notice { font-size:13px; color:var(--muted); }
+
+    /* responsive */
+    @media (max-width:900px){
+      .container{ grid-template-columns: 1fr; padding:18px; }
+    }
+
+    /* invoice modal */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,0.5);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+    }
+    .modal{
+      width:95%;
+      max-width:520px;
+      background:var(--card);
+      border-radius:12px;
+      padding:18px;
+      box-shadow: 0 20px 50px rgba(2,6,23,0.4);
+    }
+    .invoice-item{ display:flex; justify-content:space-between; margin:6px 0; }
+    .muted{ color:var(--muted); font-size:13px; }
+  </style>
+</head>
+<body>
+
+  <div class="container" role="main" aria-labelledby="welcome-title">
+    <div>
+      <header>
+        <h1 id="welcome-title">Welcome to Azure Sands Hotel</h1>
+        <p class="small">Enter your name and room number to place a dinner order — we'll show the total before submitting.</p>
+      </header>
+
+      <section class="guest-form" aria-labelledby="guest-form-title" style="margin-top:16px;">
+        <h2 id="guest-form-title" style="margin:0 0 8px 0; font-size:16px;">Guest Details</h2>
+
+        <label for="guestName">Full name</label>
+        <input id="guestName" type="text" placeholder="e.g. Ahmed Ali" autocomplete="name" />
+
+        <label for="roomNumber">Room number</label>
+        <input id="roomNumber" type="text" placeholder="e.g. 402 or B12" inputmode="numeric" />
+
+        <div class="small notice" id="guestError" aria-live="polite" style="display:none;color:var(--danger);"></div>
+
+        <div class="actions" style="margin-top:8px;">
+          <button id="saveGuest">Save guest</button>
+          <button class="secondary" id="resetGuest" type="button">Reset</button>
+        </div>
+
+        <p class="small" style="margin-top:10px;">
+          Saved guest: <strong id="savedGuest">— not set —</strong>
+        </p>
+      </section>
+
+      <section class="menu" aria-labelledby="menu-title" style="margin-top:16px;">
+        <h2 id="menu-title" style="margin:0 0 8px 0; font-size:16px;">Dinner Menu</h2>
+        <p class="muted">Choose quantities (0 to not order). Prices in USD.</p>
+
+        <div class="menu-list" id="menuList">
+          <!-- Items added by JS -->
+        </div>
+
+        <div class="actions" style="margin-top:12px;">
+          <button id="calculate">Calculate total</button>
+          <button class="secondary" id="clearOrder" type="button">Clear order</button>
+        </div>
+
+      </section>
+    </div>
+
+    <aside>
+      <div class="summary" aria-labelledby="summary-title">
+        <h3 id="summary-title" style="margin:0 0 6px 0; font-size:16px;">Order Summary</h3>
+
+        <div class="summary-row">
+          <div class="muted">Guest</div>
+          <div id="summaryGuest">— not set —</div>
+        </div>
+
+        <div class="summary-row">
+          <div class="muted">Room</div>
+          <div id="summaryRoom">—</div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid #eef2f7;margin:8px 0;">
+
+        <div id="orderLines" style="display:flex;flex-direction:column;gap:6px;">
+          <div class="muted">No items yet</div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid #eef2f7;margin:8px 0;">
+
+        <div class="summary-row">
+          <div class="muted">Subtotal</div>
+          <div id="subtotal">$0.00</div>
+        </div>
+        <div class="summary-row">
+          <div class="muted">Service (10%)</div>
+          <div id="service">$0.00</div>
+        </div>
+        <div class="summary-row total">
+          <div>Total</div>
+          <div id="grandTotal">$0.00</div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button id="placeOrder">Place order</button>
+          <button class="secondary" id="printInvoice" type="button">Print/Save</button>
+        </div>
+
+        <p class="small muted" style="margin-top:12px;">
+          Note: This demo does not actually send the order to a kitchen. It only shows how the order and total would look.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Modal (hidden by default) -->
+  <div id="modalRoot" style="display:none;"></div>
+
+  <script>
+    // Menu data (you can edit / extend)
+    const menu = [
+      { id: 'dish1', name: 'Grilled Salmon', desc: 'Served with lemon butter & veggies', price: 18.50 },
+      { id: 'dish2', name: 'Steak (200g)', desc: 'Cooked to your liking, with mashed potatoes', price: 22.00 },
+      { id: 'dish3', name: 'Vegetarian Pasta', desc: 'Penne with seasonal vegetables', price: 12.75 },
+      { id: 'dish4', name: 'Caesar Salad', desc: 'Crisp romaine, parmesan, house dressing', price: 9.25 },
+      { id: 'dish5', name: 'Chocolate Lava Cake', desc: 'Warm cake with molten chocolate', price: 7.50 }
+    ];
+
+    // Init
+    const menuList = document.getElementById('menuList');
+    const orderLines = document.getElementById('orderLines');
+    const subtotalEl = document.getElementById('subtotal');
+    const serviceEl = document.getElementById('service');
+    const grandTotalEl = document.getElementById('grandTotal');
+    const summaryGuest = document.getElementById('summaryGuest');
+    const summaryRoom = document.getElementById('summaryRoom');
+    const savedGuestEl = document.getElementById('savedGuest');
+    const guestError = document.getElementById('guestError');
+
+    // Build menu UI
+    menu.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'menu-item';
+      div.innerHTML = `
+        <div class="menu-left">
+          <div>
+            <div class="dish-name">${escapeHtml(item.name)}</div>
+            <div class="dish-desc">${escapeHtml(item.desc)}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;">
+          <div class="dish-price">$${item.price.toFixed(2)}</div>
+          <div style="margin-top:8px; display:flex; gap:6px; align-items:center;">
+            <label class="small" for="${item.id}-qty">Qty</label>
+            <input id="${item.id}-qty" class="qty" type="number" min="0" max="10" value="0" />
+          </div>
+        </div>
+      `;
+      menuList.appendChild(div);
+    });
+
+    // Helpers
+    function escapeHtml(text){
+      return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    function formatUSD(n){
+      return '$' + n.toFixed(2);
+    }
+
+    function readGuest(){
+      return {
+        name: document.getElementById('guestName').value.trim(),
+        room: document.getElementById('roomNumber').value.trim()
+      };
+    }
+
+    function saveGuestToUI(name, room){
+      summaryGuest.textContent = name || '— not set —';
+      summaryRoom.textContent = room || '—';
+      savedGuestEl.textContent = name ? `${name} (room ${room || '—'})` : '— not set —';
+    }
+
+    // Guest save/reset
+    document.getElementById('saveGuest').addEventListener('click', () => {
+      guestError.style.display = 'none';
+      const g = readGuest();
+      if(!g.name){
+        guestError.style.display = 'block';
+        guestError.textContent = 'Please enter your name.';
+        return;
+      }
+      if(!g.room){
+        guestError.style.display = 'block';
+        guestError.textContent = 'Please enter your room number.';
+        return;
+      }
+      saveGuestToUI(g.name, g.room);
+      guestError.style.display = 'none';
+      // optional: keep saved guest in localStorage
+      try { localStorage.setItem('hotel_guest', JSON.stringify(g)); } catch(e){}
+    });
+
+    document.getElementById('resetGuest').addEventListener('click', () => {
+      document.getElementById('guestName').value = '';
+      document.getElementById('roomNumber').value = '';
+      saveGuestToUI('', '');
+      guestError.style.display = 'none';
+      try { localStorage.removeItem('hotel_guest'); } catch(e){}
+    });
+
+    // load saved guest if present
+    try {
+      const saved = JSON.parse(localStorage.getItem('hotel_guest'));
+      if(saved && saved.name) {
+        document.getElementById('guestName').value = saved.name;
+        document.getElementById('roomNumber').value = saved.room || '';
+        saveGuestToUI(saved.name, saved.room || '');
+      }
+    } catch(e){ /* ignore */ }
+
+    // Calculate
+    document.getElementById('calculate').addEventListener('click', calculateTotal);
+    document.getElementById('clearOrder').addEventListener('click', clearOrder);
+    document.getElementById('placeOrder').addEventListener('click', placeOrder);
+    document.getElementById('printInvoice').addEventListener('click', () => window.print());
+
+    function getOrder(){
+      const lines = [];
+      let subtotal = 0;
+      menu.forEach(item => {
+        const qty = Number(document.getElementById(item.id + '-qty').value) || 0;
+        if(qty > 0){
+          const lineTotal = round2(item.price * qty);
+          lines.push({ id: item.id, name: item.name, price: item.price, qty, lineTotal });
+          subtotal += lineTotal;
+        }
+      });
+      subtotal = round2(subtotal);
+      return { lines, subtotal };
+    }
+
+    function calculateTotal(){
+      guestError.style.display = 'none';
+      const guest = readGuest();
+      if(!guest.name || !guest.room){
+        guestError.style.display = 'block';
+        guestError.textContent = 'Please save your name and room number before calculating the total.';
+        return;
+      }
+      saveGuestToUI(guest.name, guest.room);
+
+      const order = getOrder();
+      // update order lines UI
+      if(order.lines.length === 0){
+        orderLines.innerHTML = '<div class="muted">No items selected.</div>';
+      } else {
+        orderLines.innerHTML = '';
+        order.lines.forEach(l => {
+          const div = document.createElement('div');
+          div.className = 'invoice-item';
+          div.innerHTML = `<div>${escapeHtml(l.name)} <span class="muted">x${l.qty}</span></div><div>${formatUSD(l.lineTotal)}</div>`;
+          orderLines.appendChild(div);
+        });
+      }
+
+      subtotalEl.textContent = formatUSD(order.subtotal);
+      const service = round2(order.subtotal * 0.10); // 10% service charge
+      serviceEl.textContent = formatUSD(service);
+      const grand = round2(order.subtotal + service);
+      grandTotalEl.textContent = formatUSD(grand);
+    }
+
+    function round2(n){ return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+    function clearOrder(){
+      menu.forEach(item => {
+        document.getElementById(item.id + '-qty').value = 0;
+      });
+      orderLines.innerHTML = '<div class="muted">No items selected.</div>';
+      subtotalEl.textContent = formatUSD(0);
+      serviceEl.textContent = formatUSD(0);
+      grandTotalEl.textContent = formatUSD(0);
+    }
+
+    function placeOrder(){
+      // validate guest
+      const guest = readGuest();
+      if(!guest.name || !guest.room){
+        guestError.style.display = 'block';
+        guestError.textContent = 'Please save your name and room number before placing the order.';
+        return;
+      }
+      const order = getOrder();
+      if(order.lines.length === 0){
+        guestError.style.display = 'block';
+        guestError.textContent = 'Please select at least one menu item to order.';
+        return;
+      }
+      guestError.style.display = 'none';
+
+      const service = round2(order.subtotal * 0.10);
+      const grand = round2(order.subtotal + service);
+
+      // Show invoice modal (demo only)
+      showModal({
+        guestName: guest.name,
+        room: guest.room,
+        lines: order.lines,
+        subtotal: order.subtotal,
+        service,
+        grand
+      });
+    }
+
+    // Modal implementation
+    function showModal(invoice){
+      const root = document.getElementById('modalRoot');
+      root.style.display = 'block';
+      root.innerHTML = `
+        <div class="modal-backdrop" role="dialog" aria-modal="true">
+          <div class="modal" role="document">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div>
+                <strong style="font-size:18px;">Dinner Order — Invoice</strong>
+                <div class="muted" style="font-size:13px;">${escapeHtml(invoice.guestName)} — Room ${escapeHtml(invoice.room)}</div>
+              </div>
+              <div>
+                <button id="closeModal" style="background:transparent;color:var(--muted);border:none;font-weight:600;cursor:pointer;">✕</button>
+              </div>
+            </div>
+
+            <div style="margin-top:8px;">
+              ${invoice.lines.map(l => `<div class="invoice-item"><div>${escapeHtml(l.name)} <span class="muted">x${l.qty}</span></div><div>${formatUSD(l.lineTotal)}</div></div>`).join('')}
+            </div>
+
+            <hr style="border:none;border-top:1px solid #eef2f7;margin:10px 0;">
+
+            <div class="invoice-item"><div class="muted">Subtotal</div><div>${formatUSD(invoice.subtotal)}</div></div>
+            <div class="invoice-item"><div class="muted">Service (10%)</div><div>${formatUSD(invoice.service)}</div></div>
+            <div class="invoice-item" style="font-weight:800;font-size:18px;"><div>Total</div><div>${formatUSD(invoice.grand)}</div></div>
+
+            <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;">
+              <button id="confirmOrder">Confirm (demo)</button>
+              <button id="exportPDF" class="secondary" type="button">Download Invoice</button>
+            </div>
+
+            <p class="muted" style="margin-top:12px;">This is a demo invoice. In a real system the order would be sent to the kitchen and recorded.</p>
+          </div>
+        </div>
+      `;
+
+      // Event handlers
+      root.querySelector('#closeModal').addEventListener('click', closeModal);
+      root.querySelector('#confirmOrder').addEventListener('click', () => {
+        alert('Order confirmed (demo). Thank you!');
+        closeModal();
+        clearOrder();
+      });
+
+      root.querySelector('#exportPDF').addEventListener('click', () => {
+        // Simple export: open printable window
+        const w = window.open('', '_blank');
+        const html = `
+          <html><head><title>Invoice</title>
+          <meta charset="utf-8" />
+          <style>
+            body{font-family:Arial,Helvetica,sans-serif;padding:24px;color:#111}
+            .h{font-size:18px;font-weight:800;margin-bottom:8px}
+            .muted{color:#6b7280}
+            .item{display:flex;justify-content:space-between;margin:8px 0}
+            hr{border:none;border-top:1px solid #eee;margin:10px 0}
+          </style>
+          </head><body>
+            <div class="h">Dinner Invoice</div>
+            <div class="muted">${escapeHtml(invoice.guestName)} — Room ${escapeHtml(invoice.room)}</div>
+            <div style="margin-top:12px;">
+              ${invoice.lines.map(l => `<div class="item"><div>${escapeHtml(l.name)} x${l.qty}</div><div>${formatUSD(l.lineTotal)}</div></div>`).join('')}
+            </div>
+            <hr>
+            <div class="item"><div>Subtotal</div><div>${formatUSD(invoice.subtotal)}</div></div>
+            <div class="item"><div>Service (10%)</div><div>${formatUSD(invoice.service)}</div></div>
+            <div class="item" style="font-weight:800;"><div>Total</div><div>${formatUSD(invoice.grand)}</div></div>
+            <p style="margin-top:20px;font-size:13px;color:#666">Generated by Hotel demo — not a fiscal receipt.</p>
+          </body></html>`;
+        w.document.write(html);
+        w.document.close();
+      });
+    }
+
+    function closeModal(){
+      const root = document.getElementById('modalRoot');
+      root.style.display = 'none';
+      root.innerHTML = '';
+    }
+
+    // small UX: recalc totals when qty changes
+    menu.forEach(item => {
+      document.getElementById(item.id + '-qty').addEventListener('input', () => {
+        // keep values non-negative and integer-like
+        const el = document.getElementById(item.id + '-qty');
+        let v = el.value;
+        if(v === '') return;
+        v = Math.max(0, Math.round(Number(v)));
+        if(!isFinite(v)) v = 0;
+        el.value = v;
+      });
+    });
+
+    // initial state
+    clearOrder();
+
+  </script>
+</body>
+</html>
